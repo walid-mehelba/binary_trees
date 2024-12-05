@@ -1,8 +1,5 @@
 #include "binary_trees.h"
 
-heap_t *heap_insert(heap_t **root, int value);
-size_t binary_tree_size(const binary_tree_t *tree);
-
 /**
  * heap_insert- Inserts a value in Max Binary Heap.
  *
