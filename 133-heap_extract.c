@@ -1,87 +1,70 @@
 #include "binary_trees.h"
 
 /**
- * heap_extract - Extracts the root node of a Max Binary Heap.
- * @root: A double pointer to the root node of the heap.
- * Return: The value stored in the root node, or 0 if the heap is empty.
- */
+* heap_extract - Extracts the root node of a Max Binary Heap.
+* @root: A double pointer to the root node of heap.
+* Return: The value stored in the root node, or 0 on failure.
+*/
 int heap_extract(heap_t **root)
 {
-	int value;
+int value;
+heap_t *temp;
 
-	if (!root || !*root)
-		return (0);
+if (!root || !*root)
+return (0);
 
-	value = (*root)->n;
+temp = *root;
+value = temp->n;
 
-	if (!(*root)->left)
-	{
-		free(*root);
-		*root = NULL;
-		return (value);
-	}
+if (!temp->left && !temp->right)
+{
+free(temp);
+*root = NULL;
+}
+else
+{
+heap_t *last_node = max(temp);
+(*root)->n = last_node->n;
+recurse_extract(*root);
+}
 
-	recurse_extract(*root);
-	return (value);
+return (value);
 }
 
 /**
- * recurse_extract - Recursively adjusts the Max Heap after extraction.
- * @tree: A pointer to the root of the tree.
- */
+* recurse_extract - Recursively rebalances the heap after extraction.
+* @tree: The pointer to the root of the heap.
+*/
 void recurse_extract(heap_t *tree)
 {
-	heap_t *sub_max;
+heap_t *max_node, *swap_node;
 
-	if (!tree || !tree->left)
-		return;
+if (!tree || (!tree->left && !tree->right))
+return;
 
-	sub_max = max(tree->left);
+if (!tree->right || tree->left->n >= tree->right->n)
+max_node = tree->left;
+else
+max_node = tree->right;
 
-	if (tree->right)
-	{
-		heap_t *right_max = max(tree->right);
-		if (right_max->n > sub_max->n)
-			sub_max = right_max;
-	}
-
-	tree->n = sub_max->n;
-
-	if (!sub_max->left && sub_max->parent)
-	{
-		if (sub_max->parent->left == sub_max)
-			sub_max->parent->left = NULL;
-		else
-			sub_max->parent->right = NULL;
-
-		free(sub_max);
-	}
-	else
-		recurse_extract(sub_max);
+if (max_node->n > tree->n)
+{
+swap_node = tree;
+tree->n = max_node->n;
+max_node->n = swap_node->n;
+recurse_extract(max_node);
+}
 }
 
 /**
- * max - Finds the maximum node in a subtree.
- * @tree: A pointer to the root of the subtree.
- * Return: A pointer to the node with the maximum value.
- */
+* max - Finds the last node in level-order traversal.
+* @tree: The pointer to the root of the tree.
+* Return: Pointer to the last node.
+*/
 heap_t *max(heap_t *tree)
 {
-	heap_t *curr_max = tree;
+if (!tree->left)
+return (tree);
 
-	if (tree->left)
-	{
-		heap_t *left_max = max(tree->left);
-		if (left_max->n > curr_max->n)
-			curr_max = left_max;
-	}
-
-	if (tree->right)
-	{
-		heap_t *right_max = max(tree->right);
-		if (right_max->n > curr_max->n)
-			curr_max = right_max;
-	}
-
-	return (curr_max);
+return (tree->right ? max(tree->right) : max(tree->left));
 }
